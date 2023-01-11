@@ -32,30 +32,30 @@ Cars per pit: 1
 Pit 0, Team: <none>, 0: champ2011 1 
 Initializing Driver champ2011 1...
 Waiting for request on port 3001
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/screen.xml" (0045A34C)
-parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/screen.xml" (0045A34C)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/screen.xml" (0073F26C)
+parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/screen.xml" (0073F26C)
 parmReleaseHeader: refcount null free "C:/Program Files (x86)/torcs/config/screen.xml"
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/graph.xml" (07870964)
-parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/graph.xml" (07870964)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/graph.xml" (07743A74)
+parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/graph.xml" (07743A74)
 parmReleaseHeader: refcount null free "C:/Program Files (x86)/torcs/config/graph.xml"
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/graph.xml" (0046DAE4)
-parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/graph.xml" (0046DAE4)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/graph.xml" (0075066C)
+parmReleaseHandle: release "C:/Program Files (x86)/torcs/config/graph.xml" (0075066C)
 parmReleaseHeader: refcount null free "C:/Program Files (x86)/torcs/config/graph.xml"
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceengine.xml" (07870BE4)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/quickrace.xml" (07870AE4)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/champ.xml" (078707E4)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/dtmrace.xml" (0787D0DC)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/endrace.xml" (07883944)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/ncrace.xml" (0788A624)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/practice.xml" (0788DE34)
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/results/quickrace/results-2023-01-03-23-00.xml" (07892B14)
-GfParmReadFile: Openning "tracks/road/g-track-1/g-track-1.xml" (07892C14)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceengine.xml" (07743834)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/quickrace.xml" (077435B4)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/champ.xml" (077432F4)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/dtmrace.xml" (0074AD1C)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/endrace.xml" (07756EAC)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/ncrace.xml" (0775C804)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/config/raceman/practice.xml" (0776235C)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/results/quickrace/results-2023-01-11-00-24.xml" (07765A34)
+GfParmReadFile: Openning "tracks/road/g-track-1/g-track-1.xml" (07765874)
 GfParmListClean: "CG Speedway number 1/Results/Quick Race" not found
-GfParmReadFile: Openning "C:/Program Files (x86)/torcs/drivers/championship2011server/championship2011server.xml" (078F31DC)
-GfParmReadFile: Openning "cars/car1-trb1/car1-trb1.xml" (078F449C)
-GfParmReadFile: Openning "categories/trb1.xml" (079575FC)
+GfParmReadFile: Openning "C:/Program Files (x86)/torcs/drivers/championship2011server/championship2011server.xml" (077C602C)
+GfParmReadFile: Openning "cars/car1-trb1/car1-trb1.xml" (077C6BEC)
+GfParmReadFile: Openning "categories/trb1.xml" (0782999C)
 Merging "categories/trb1.xml" and "cars/car1-trb1/car1-trb1.xml" (SRC - DST)
-parmReleaseHandle: release "categories/trb1.xml" (079575FC)
+parmReleaseHandle: release "categories/trb1.xml" (0782999C)
 parmReleaseHeader: refcount null free "categories/trb1.xml"
-parmReleaseHandle: release "cars/car1-trb1/car1-trb1.xml" (078F449C)
+parmReleaseHandle: release "cars/car1-trb1/car1-trb1.xml" (077C6BEC)
 parmReleaseHeader: refcount null free "cars/car1-trb1/car1-trb1.xml"

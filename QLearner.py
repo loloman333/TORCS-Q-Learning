@@ -20,6 +20,7 @@ def moving_avg(array, windows_size):
 class QLearner:
 
     EXPORT_PATH: str = "./ex.port"
+    QTABLE_EXPORT_PATH: str = "./qtable"
 
     def __init__(self, num_states: int, num_actions: int, epsilon: float, alpha: float, gamma: float, epsilon_change: float, epsilon_min) -> None:
 
@@ -76,6 +77,13 @@ class QLearner:
         with open(QLearner.EXPORT_PATH, "rb") as file:
             return pickle.load(file)
 
+    def export_qtable(self) -> None:
+        with open(self.QTABLE_EXPORT_PATH, "wb") as file:
+            pickle.dump(self.q_table, file)
+
+    def import_qtable(self) -> None:
+        with open(self.QTABLE_EXPORT_PATH, "rb") as file:
+            self.q_table = pickle.load(file)
 
     def q_table_string(self):
         string = f"  + {'     '.join([f'{i:3}' for i in range(0, self.num_actions)])}\n"
@@ -143,9 +151,9 @@ class QLearner:
         self.stats.epsilon_values.append(self.epsilon)
         self.stats.scores.append(self.score)
 
-        if len(self.stats.scores) % 10 == 0 and len(self.stats.scores) != 0:
-            print(f"Episode: {len(self.stats.scores)}, Total Best: {self.stats.best_score}, Last 10 Best: {max(self.stats.scores[-10:])}, Last 10 Averge: {np.average(self.stats.scores[-10:]):.1f}, Last 10 Min: {min(self.stats.scores[-10:]):.1f}, Epsilon: {self.epsilon:.3f}")
-            self._export()
+        #if len(self.stats.scores) % 10 == 0 and len(self.stats.scores) != 0:
+        print(f"Episode: {len(self.stats.scores)}, Total Best: {self.stats.best_score}, Last 10 Best: {max(self.stats.scores[-10:])}, Last 10 Averge: {np.average(self.stats.scores[-10:]):.1f}, Last 10 Min: {min(self.stats.scores[-10:]):.1f}, Epsilon: {self.epsilon:.3f}")
+        #    self._export()
 
         self.epsilon_deacy()
 
@@ -173,9 +181,9 @@ class QLearner:
         ax2.tick_params(axis='y', colors="orange")
 
         # Stop Learning
-        for x in self.stats.stop_learning:
-            plt.axvline(x, color = 'red', label = 'Stopped learning')
-            plt.text(x, 5, "Stopped\nlearning", rotation=0, verticalalignment='center')
+        #for x in self.stats.stop_learning:
+        #    plt.axvline(x, color = 'red', label = 'Stopped learning')
+        #    plt.text(x, 5, "Stopped\nlearning", rotation=0, verticalalignment='center')
 
         # Legend
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=3)

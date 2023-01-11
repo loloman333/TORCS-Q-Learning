@@ -1,30 +1,27 @@
-import SimplePythonClient.BaseDriver as BaseDriver
-import SimplePythonClient.CarState as CarState
-import SimplePythonClient.CarControl as CarControl
+from QLearner import QLearner
 from types import SimpleNamespace
 import numpy as np
+import SimplePythonClient.CarControl as CarControl
+import SimplePythonClient.CarState as CarState
 
-from q_learner import QLearner
+class QSteerer(QLearner):
 
-NUMBEROFRANGEFINDERSENSORS = 19
-
-class QDriver(QLearner, BaseDriver.BaseDriver):
-
+    EXPORT_PATH: str = "./steerer.export"
+    QTABLE_EXPORT_PATH: str = "./steerer.qtable"
+    
     substates = [
         SimpleNamespace(name="track_posistion", count=21, min=-1.3, max=1.3),
         SimpleNamespace(name="angle", count=21, min=-np.pi/2, max=np.pi/2)
     ]
-    
+
     # accel, brake, gear, steer, clutch, focus, meta
     controls = [
-        CarControl.CarControl(0.25, 0, 1, 0, 0, 0, 0), # Straight
-        CarControl.CarControl(0.25, 0, 1, 0.35, 0, 0, 0), # Left
-        CarControl.CarControl(0.25, 0, 1, -0.35, 0, 0, 0), # Right
+        "Straight", #CarControl.CarControl(0.25, 0, 1, 0, 0, 0, 0), # Straight
+        "Left",     #CarControl.CarControl(0.25, 0, 1, 0.35, 0, 0, 0), # Left
+        "Right",    #CarControl.CarControl(0.25, 0, 1, -0.35, 0, 0, 0), # Right
     ]
 
-    def __init__(self, epsilon, alpha, gamma, epsilon_change, epsilon_min):
-        self.steeringWheel = 0.0
-
+    def __init__(self, epsilon, alpha, gamma, epsilon_change, epsilon_min) -> None:
         num_states = 1
         for substate in self.substates:
             num_states *= substate.count
@@ -32,27 +29,6 @@ class QDriver(QLearner, BaseDriver.BaseDriver):
         
         super().__init__(num_states, len(self.controls), epsilon, alpha, gamma, epsilon_change, epsilon_min)
     
-    @staticmethod
-    def _import() -> QLearner:
-        learner = super(QDriver, QDriver)._import()
-
-        num_states = 1
-        for substate in learner.substates:
-            num_states *= substate.count
-            substate.bins = np.linspace(substate.min, substate.max, substate.count + 1)
-        learner.num_states = num_states
-
-        return learner
-        
-    def onShutdown(self):            
-        self.end_episode()
-
-    def onRestart(self):
-        self.end_episode()
-        
-    def getInitAngles(self):
-        return [0]
-
     # TODO PFUSCH!!!!
     def get_substate(self, value, state_count, state_length):
         substate_index = state_count
@@ -81,35 +57,15 @@ class QDriver(QLearner, BaseDriver.BaseDriver):
         )
     
     def getRewardScore(self, obs: CarState.CarState):
-        
-        #if obs.getDistRaced() > self.max_dist_raced:
-        #    self.max_dist_raced = obs.getDistRaced()
-
         track_reward = 10 * (1 - abs(obs.getTrackPos()))
-        #dist_reward = 10 * (obs.getDistRaced() / self.max_dist_raced)
-
         return track_reward, 1 
-
-    def Update(self, buffer):
-        cs = CarState.CarState(buffer)
+    
+    def learn(self, cs: CarState.CarState):
 
         if (abs(cs.getTrackPos()) >= 1.2):
-            self.learn(cs, -1000, 1)
-            #return str(CarControl.CarControl(0,0,0,0,0,0,1))
+            super().learn(cs, -1000, 1)
+            return
 
         if (self.last_action != None and self.last_state != None):
             reward, score = self.getRewardScore(cs)
-            self.learn(cs, reward, score)
-
-        cc = self.__wDrive(cs)
-
-        return str(cc)   
-    
-    def action_to_car_control(self, action):
-        return self.controls[action]
-    
-    # put the intelligence here    
-    def __wDrive(self, currentCarState):
-        action = self.policy(currentCarState)
-        return self.action_to_car_control(action)
- 
+            super().learn(cs, reward, score)

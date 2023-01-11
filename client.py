@@ -8,12 +8,13 @@ Created on  03.05.2011
 
 import socket
 import subprocess
-import os
 import time 
 import datetime
 import SimplePythonClient.BaseDriver as BaseDriver
 import SimplePythonClient.SimpleParser as SimpleParser
-from torcs_qlearner import QDriver
+from QDriver import QDriver
+from QSteerer import QSteerer
+from QAccelerator import QAccelerator
    
 TORCS_PATH = "C:\\Program Files (x86)\\torcs"
 SERVER_IP = "127.0.0.1"
@@ -46,7 +47,7 @@ def start_server(visual):
     
     args: str
     if visual:
-        args = ""
+        args = "-t 15000000"
     else:
         args = "-T -t 15000000"
 
@@ -181,15 +182,28 @@ class client():
             #send action    
             self.s.sendto(msgBuffer.encode(), (SERVER_IP, serverPort))
 
-'''
+#'''
 if __name__ == '__main__':
-    #start_server(False)
+    start_server(False)
 
-    driver = QDriver._import()
-    driver.stop_learning()
-    #driver.epsilon = 0
+    #steerer = QSteerer(0.75, 0.2, 0.8, -0.003, 0.001)
+    steerer = QSteerer(0, 0.2, 0.8, 0, 0)
+    steerer.stop_learning()
+    steerer.import_qtable() 
+
+    accelerator = QAccelerator(0.2, 0.2, 0.8, -0.003, 0.001)
+
+    driver = QDriver(steerer, accelerator)
+
     myclient = client(driver)
+    myclient.run_episodes(500)
+
+    driver.accelerator.plot_stats()
+
+    start_server(True)
     myclient.run_episodes(50)
+    driver.accelerator.plot_stats()
+
 '''
 if __name__ == '__main__':
     start_server(False)

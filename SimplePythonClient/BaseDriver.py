@@ -28,7 +28,7 @@ class BaseDriver(object):
     #bringingCarBackOnStreet = False
 
     def __init__(self):
-        print ("init BaseDriver")
+        #print ("init BaseDriver")
         self.stuckCounter = 0
         self.bringingCartBack = 0
         
@@ -51,11 +51,13 @@ class BaseDriver(object):
 
     #function called at shutdown
     def onShutdown(self):
-        print ("Bye bye!")
+        #print ("Bye bye!")
+        pass
     
     #function called at server restart
     def onRestart(self):
-        print ("Restarting the race!")
+        #print ("Restarting the race!")
+        pass
 
     def getGear(self, sensors): 
         gear = sensors.getGear()
@@ -80,7 +82,7 @@ class BaseDriver(object):
     # return True if the car is stuckCounter, otherwise false
     def stuck(self, cs):
         #check if car is currently stuckCounter
-        print ("abs(cs.getAngle()): ", abs(cs.getAngle()) , "   STUCKANGLE: ", STUCKANGLE)
+        #print ("abs(cs.getAngle()): ", abs(cs.getAngle()) , "   STUCKANGLE: ", STUCKANGLE)
         
         #if ( abs(cs.getAngle()) > STUCKANGLE ):
         if( cs.getTrackPos() > 1.0 or cs.getTrackPos() < -1.0 ):
@@ -93,7 +95,7 @@ class BaseDriver(object):
             else:
                 #if not stuckCounter reset stuckCounter counter
                 self.stuckCounter = 0
-        print ("self.stuckCounter: ", self.stuckCounter)
+        #print ("self.stuckCounter: ", self.stuckCounter)
         return (self.stuckCounter > STUCKTIME)
     
     

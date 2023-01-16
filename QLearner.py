@@ -22,6 +22,9 @@ class QLearner:
     EXPORT_PATH: str = "./ex.port"
     QTABLE_EXPORT_PATH: str = "./qtable"
 
+    substates: dict[str, SimpleNamespace]
+
+    # TODO: remove num_states ? -> give option to use  substate dict instead  
     def __init__(self, num_states: int, num_actions: int, epsilon: float, alpha: float, gamma: float, epsilon_change: float, epsilon_min) -> None:
 
         self.num_states = num_states    
@@ -45,6 +48,9 @@ class QLearner:
         self.stats.actions = []
         self.stats.observations = []
         self.q_table = np.zeros((num_states, num_actions))
+
+        for substate in self.substates.values():
+            substate.bins = np.linspace(substate.min, substate.max, substate.count + 1)
         
     def __str__(self) -> str:
         return f"""
@@ -100,6 +106,8 @@ class QLearner:
         self.keep_learning = False
         self.stats.stop_learning.append(len(self.stats.scores))
 
+    # Old:
+    '''
     def get_substate(self, value, state_count, state_length):
         tempered = False
         if state_count % 2 != 0:
@@ -115,13 +123,23 @@ class QLearner:
         substate = math.trunc(substate / 2) if tempered else substate
 
         return substate
+    '''
 
-    def combine_substates(self, substates, substate_counts):
+    def get_substate(self, value, substate_name):
+        substate = np.digitize(value, self.substates[substate_name].bins) - 1
+        substate = 0 if substate < 0 else substate
+        substate = self.substates[substate_name].count - 1 if substate > self.substates[substate_name].count - 1 else substate
+
+        assert substate >= 0 and substate <= self.substates[substate_name].count - 1
+
+        return substate
+
+    def combine_substates(self, substate_values):
         state = 0
         mulitplier = 1
-        for index, substate in enumerate(substates):
-            state += substate * mulitplier
-            mulitplier *= substate_counts[index]
+        for index, substate in enumerate(self.substates.values()):
+            state += substate_values[index] * mulitplier
+            mulitplier *= substate.count
 
         return state
 
@@ -220,11 +238,9 @@ class QLearner:
         plt.show()
 
     def policy(self, observation) -> int:
-
         state = self.get_state(observation)
 
         random = np.random.uniform()
-
         if self.keep_learning and random < self.epsilon:
             action = np.random.randint(self.num_actions)
         else:
@@ -232,9 +248,6 @@ class QLearner:
             
         self.last_state = state
         self.last_action = action
-
-        #self.stats.observations.append(observation)
-        #self.stats.actions.append(action)
 
         return action
 

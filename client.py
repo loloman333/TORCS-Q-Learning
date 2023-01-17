@@ -14,7 +14,7 @@ import SimplePythonClient.BaseDriver as BaseDriver
 import SimplePythonClient.SimpleParser as SimpleParser
 from QDriver import QDriver
 from QSteerer import QSteerer
-from QAccelerator import QAccelerator
+from QAccelerator import QAccelerator, StaticAccelerator
    
 TORCS_PATH = "C:\\Program Files (x86)\\torcs"
 SERVER_IP = "127.0.0.1"
@@ -150,10 +150,11 @@ class client():
                     break
                             
             if msg_in == "***shutdown***":
-                #start_server(False)
-                #time.sleep(2)
+                start_server(False)
+                time.sleep(1)
                 self.driver.onShutdown()
                 self.s.close()
+                print("Shutdown!")
                 break
     
             if msg_in == "***restart***":
@@ -182,39 +183,71 @@ class client():
             #send action    
             self.s.sendto(msgBuffer.encode(), (SERVER_IP, serverPort))
 
-#'''
 if __name__ == '__main__':
-    start_server(False)
+    szenario = 2
 
-    #steerer = QSteerer(0.75, 0.2, 0.8, -0.003, 0.001)
-    steerer = QSteerer(0, 0.2, 0.8, 0, 0)
-    steerer.stop_learning()
-    steerer.import_qtable() 
+    # Train new steerer
+    if szenario == 0:
+        start_server(False)
+        print("Server started!")
 
-    accelerator = QAccelerator(0.2, 0.2, 0.8, -0.003, 0.001)
+        steerer = QSteerer(epsilon=1, alpha=0.2, gamma=0.9, epsilon_change=-0.005, epsilon_min=0.001)
+        print("Steerer initalized!")
 
-    driver = QDriver(steerer, accelerator)
+        accelerator = StaticAccelerator()
+        print("Accelerator initalized!")
 
-    myclient = client(driver)
-    myclient.run_episodes(500)
+        driver = QDriver(steerer, accelerator)
+        print("Driver initialized!")
 
-    driver.accelerator.plot_stats()
+        print("Start driving...")
+        myclient = client(driver)
+        myclient.run_episodes(250)
+        driver.steerer.plot_stats()
 
-    start_server(True)
-    myclient.run_episodes(50)
-    driver.accelerator.plot_stats()
+        driver.steerer.epsilon = 0
+        myclient.run_episodes(50)
+        driver.steerer.plot_stats()
 
-'''
-if __name__ == '__main__':
-    start_server(False)
+        start_server(True)
+        myclient.run_episodes(10)
+        
+        accelerator = QAccelerator(epsilon=1, alpha=0.2, gamma=0.9, epsilon_change=-0.005, epsilon_min=0.001)
+        accelerator.print_frequency = 50
 
-    driver = QDriver(0.75, 0.2, 0.8, -0.003, 0.001)
-    myclient = client(driver)
-    myclient.run_episodes(500)
+    # Test driver from qtable expport
+    if szenario == 1:
+        steerer = QSteerer(epsilon=0, alpha=0, gamma=0, epsilon_change=0, epsilon_min=0)
+        steerer.stop_learning()
+        steerer.import_qtable()
 
-    print(driver)
-    start_server(True)
-    driver.plot_stats()
+        accelerator = StaticAccelerator()
 
-    myclient.run_episodes(10)
-#'''
+        driver = QDriver(steerer, accelerator)
+
+        myclient = client(driver)
+        myclient.run_episodes(20)
+
+    # Train aaccelerator with steerer from export
+    if szenario == 2:
+        start_server(False)
+
+        steerer = QSteerer(epsilon=0, alpha=0, gamma=0, epsilon_change=0, epsilon_min=0)
+        steerer.stop_learning()
+        steerer.import_qtable()
+
+        accelerator = QAccelerator(epsilon=1, alpha=0.2, gamma=0.8, epsilon_change=-0.005, epsilon_min=0.001)
+
+        driver = QDriver(steerer, accelerator)
+
+        myclient = client(driver)
+        myclient.run_episodes(250)
+        driver.accelerator.plot_stats()
+
+        driver.accelerator.epsilon = 0
+        myclient.run_episodes(50)
+        driver.accelerator.plot_stats()
+
+        driver.accelerator.stop_learning()
+        start_server(True)
+        myclient.run_episodes(20)

@@ -10,18 +10,30 @@ class QDriver(BaseDriver.BaseDriver):
         self.steerer = steerer
         self.accelerator = accelerator
         self.keep_learning = True
+        self.lap = 0
+        self.curLapTime = 0
         super().__init__()
         
-    def onShutdown(self):        
+    def onShutdown(self):
+        self.endEpisode()
+
+    def onRestart(self):
+        self.endEpisode()
+    
+    def endEpisode(self):
+        self.lap = 0
+        self.curLapTime = 0
         self.steerer.end_episode()
         self.accelerator.end_episode()
 
-    def onRestart(self):
-        self.steerer.end_episode()
-        self.accelerator.end_episode()
+    def lapChange(self, cs: CarState.CarState):
+        lap_change = 1 if cs.getCurLapTime() < self.curLapTime else 0
+        self.curLapTime = cs.getCurLapTime()
+        return lap_change       
 
     def Update(self, buffer):
         cs = CarState.CarState(buffer)
+        self.lap += self.lapChange(cs)
 
         self.steerer.learn(cs)
         self.accelerator.learn(cs)
@@ -31,8 +43,8 @@ class QDriver(BaseDriver.BaseDriver):
     
     def __wDrive(self, currentCarState: CarState.CarState):
 
-        if self.keep_learning and currentCarState.getTrackPos() >= 1.2:
-            return CarControl.CarControl(0,0,0,0,0,0,0,1)
+        if self.keep_learning and abs(currentCarState.getTrackPos()) >= 1.2 or self.lap >=4:
+            return CarControl.CarControl(0,0,0,0,0,0,1)
         
         gear = self.getGear(currentCarState)
         steer = self.steerer.getSteer(currentCarState)

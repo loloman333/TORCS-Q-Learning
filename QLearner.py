@@ -2,7 +2,6 @@ from __future__ import annotations
 import pickle
 
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 
 from types import SimpleNamespace
@@ -21,10 +20,12 @@ class QLearner:
 
     EXPORT_PATH: str = "./ex.port"
     QTABLE_EXPORT_PATH: str = "./qtable"
+    snapshot_frequency: int = 10
+    print_frequency: int = 10
 
-    substates: dict[str, SimpleNamespace]
+    substates: dict[str, SimpleNamespace] # TODO Make a class for that? or at least config object / factory function 
 
-    # TODO: remove num_states ? -> give option to use  substate dict instead  
+    # TODO: remove num_states ? -> give option to use substate dict instead
     def __init__(self, num_states: int, num_actions: int, epsilon: float, alpha: float, gamma: float, epsilon_change: float, epsilon_min) -> None:
 
         self.num_states = num_states    
@@ -50,8 +51,11 @@ class QLearner:
         self.q_table = np.zeros((num_states, num_actions))
 
         for substate in self.substates.values():
-            substate.bins = np.linspace(substate.min, substate.max, substate.count + 1)
-        
+            min = np.sign(substate.min) * (np.abs(substate.min)) ** (1 / substate.power)
+            max = np.sign(substate.max) * (np.abs(substate.max)) ** (1 / substate.power)
+            substate.bins = np.linspace(min, max, substate.count + 1)
+            substate.bins = np.power(substate.bins, substate.power)
+
     def __str__(self) -> str:
         return f"""
             Q-Learner
@@ -105,6 +109,16 @@ class QLearner:
     def stop_learning(self):
         self.keep_learning = False
         self.stats.stop_learning.append(len(self.stats.scores))
+
+    def plot_substate_bins(self):
+        increment = 0
+        for substate in self.substates.values():
+            y = np.zeros(len(substate.bins)) + increment
+            plt.plot(substate.bins / max(substate.bins), y, linestyle=' ', marker='.')
+            increment += 0.2
+            print(substate.bins)
+
+        plt.show()
 
     # Old:
     '''
@@ -169,9 +183,11 @@ class QLearner:
         self.stats.epsilon_values.append(self.epsilon)
         self.stats.scores.append(self.score)
 
-        #if len(self.stats.scores) % 10 == 0 and len(self.stats.scores) != 0:
-        print(f"Episode: {len(self.stats.scores)}, Total Best: {self.stats.best_score}, Last 10 Best: {max(self.stats.scores[-10:])}, Last 10 Averge: {np.average(self.stats.scores[-10:]):.1f}, Last 10 Min: {min(self.stats.scores[-10:]):.1f}, Epsilon: {self.epsilon:.3f}")
-        #    self._export()
+        if self.keep_learning and len(self.stats.scores) != 0:
+            if len(self.stats.scores) % self.snapshot_frequency == 0:
+                self._export()
+            if len(self.stats.scores) % self.print_frequency == 0:
+                print(f"Episode: {len(self.stats.scores)}, Total Max: {self.stats.best_score}, Last {self.print_frequency} Max: {max(self.stats.scores[-self.print_frequency:])}, Last {self.print_frequency} Averge: {np.average(self.stats.scores[-self.print_frequency:]):.1f}, Last {self.print_frequency} Min: {min(self.stats.scores[-self.print_frequency:])}, Epsilon: {self.epsilon:.3f}")
 
         self.epsilon_deacy()
 

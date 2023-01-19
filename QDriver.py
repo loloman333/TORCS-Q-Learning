@@ -15,9 +15,11 @@ class QDriver(BaseDriver.BaseDriver):
         super().__init__()
         
     def onShutdown(self):
+        print(f"Shutting down... Lap: {self.lap}")
         self.endEpisode()
 
     def onRestart(self):
+        print(f"Restarting... Lap: {self.lap}")
         self.endEpisode()
     
     def endEpisode(self):
@@ -49,6 +51,8 @@ class QDriver(BaseDriver.BaseDriver):
         gear = self.getGear(currentCarState)
         steer = self.steerer.getSteer(currentCarState)
         gas, brake = self.accelerator.getAccel(currentCarState)
+
+        assert gas >= 0 and gas <= 1 and brake >= 0 and brake <= 1
 
         return CarControl.CarControl(gas, brake, gear, steer, 0, 0, 0)
 

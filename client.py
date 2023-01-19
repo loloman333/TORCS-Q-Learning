@@ -47,9 +47,9 @@ def start_server(visual):
     
     args: str
     if visual:
-        args = "-t 15000000"
+        args = "-t 15000000 -nolaptime"
     else:
-        args = "-T -t 15000000"
+        args = "-T -t 15000000 -nolaptime"
 
     server = subprocess.Popen(f"{TORCS_PATH}\\wtorcs.exe {args}", close_fds=True, cwd=TORCS_PATH, stdout=logfile)    
 
@@ -154,7 +154,7 @@ class client():
                 time.sleep(1)
                 self.driver.onShutdown()
                 self.s.close()
-                print("Shutdown!")
+                #print("Shutdown!")
                 break
     
             if msg_in == "***restart***":
@@ -184,7 +184,7 @@ class client():
             self.s.sendto(msgBuffer.encode(), (SERVER_IP, serverPort))
 
 if __name__ == '__main__':
-    szenario = 2
+    szenario = 4
 
     # Train new steerer
     if szenario == 0:
@@ -236,7 +236,7 @@ if __name__ == '__main__':
         steerer.stop_learning()
         steerer.import_qtable()
 
-        accelerator = QAccelerator(epsilon=1, alpha=0.2, gamma=0.8, epsilon_change=-0.005, epsilon_min=0.001)
+        accelerator = QAccelerator(epsilon=0.75, alpha=0.2, gamma=0.8, epsilon_change=-0.0035, epsilon_min=0.001)
 
         driver = QDriver(steerer, accelerator)
 
@@ -251,3 +251,27 @@ if __name__ == '__main__':
         driver.accelerator.stop_learning()
         start_server(True)
         myclient.run_episodes(20)
+    
+    # Save QTable of exported accelerator
+    if szenario == 3:
+        accelerator = QAccelerator._import()
+        accelerator.export_qtable()
+        print(accelerator.q_table_string())
+
+    # Load Steerer and Accelerator from Qtable files 
+    if szenario == 4:
+        start_server(True)
+
+        steerer = QSteerer(epsilon=0, alpha=0, gamma=0, epsilon_change=0, epsilon_min=0)
+        steerer.import_qtable()
+        
+        accelerator = QAccelerator(epsilon=0, alpha=0, gamma=0, epsilon_change=0, epsilon_min=0)
+        accelerator.import_qtable()
+
+        driver = QDriver(steerer, accelerator)
+        driver.stopLearning()
+
+        myclient = client(driver)
+        myclient.run_episodes(50)
+        driver.accelerator.plot_stats()
+

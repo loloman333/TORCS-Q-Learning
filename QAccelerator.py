@@ -23,13 +23,13 @@ class QAccelerator(QLearner):
         "speed" : SimpleNamespace(count=10, min=0, max=200, power=1)
     }
 
-    current_gas = 1
-    current_brake = 0
+    # current_gas = 1
+    # current_brake = 0
     accel_values = [
-        (0, -1),    # Hold
-        (0.01, -1),  # Increase
-        (-0.01, -1), # Reduce
-        (0, 0.01)   # Brake
+        (0, 0),      # Roll
+        (0.25, 0),   # Low
+        (1, 0),      # High
+        (0, 0.2)     # Brake
     ]
 
     def __init__(self, epsilon, alpha, gamma, epsilon_change, epsilon_min) -> None:
@@ -54,7 +54,7 @@ class QAccelerator(QLearner):
         if (abs(obs.getTrackPos()) >= 1.1):
             return -10000, 1
 
-        speed_reward = obs.getSpeedX()
+        speed_reward = 10 * (obs.getSpeedX() / 200)
         track_reward = 10 * (1 - abs(obs.getTrackPos()))
 
         return speed_reward + track_reward, 1 
@@ -65,11 +65,11 @@ class QAccelerator(QLearner):
             super().learn(cs, reward, score)
 
     def getAccel(self, cs: CarState.CarState):
-        gas_change, brake_change = self.accel_values[self.policy(cs)]
-        self.current_gas += gas_change
-        self.current_brake += brake_change
+        gas, brake = self.accel_values[self.policy(cs)]
+        #self.current_gas += gas_change
+        #self.current_brake += brake_change
 
-        self.current_gas = 1 if self.current_gas > 1 else 0 if self.current_gas < 0 else self.current_gas
-        self.current_brake = 1 if self.current_brake > 1 else 0 if self.current_brake < 0 else self.current_brake
+        #self.current_gas = 1 if self.current_gas > 1 else 0 if self.current_gas < 0 else self.current_gas
+        #self.current_brake = 1 if self.current_brake > 1 else 0 if self.current_brake < 0 else self.current_brake
 
-        return self.current_gas, self.current_brake
+        return gas, brake

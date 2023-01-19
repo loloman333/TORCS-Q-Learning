@@ -47,12 +47,11 @@ class QSteerer(QLearner):
         )
     
     def getRewardScore(self, obs: CarState.CarState):
-        #if (abs(obs.getTrackPos()) >= 1.2):
-        #    return -1000, 1
+        if (abs(obs.getTrackPos()) >= 1.2):
+            return -1000, 1
 
         track_reward = 10 * (1 - abs(obs.getTrackPos()))
-        track_reward = np.sign(track_reward) * track_reward ** 2 
-        
+        #track_reward = np.sign(track_reward) * track_reward ** 2 
         return track_reward, 1 
     
     def learn(self, cs: CarState.CarState):
